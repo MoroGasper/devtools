@@ -1,3 +1,3 @@
-module github.com/MoroGasper/devtools/dvtsio
+module github.com/MoroGasper/devtools/dvtlsio
 
 go 1.19
