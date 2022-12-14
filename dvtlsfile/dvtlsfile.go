@@ -5,15 +5,15 @@ import (
 	"io/ioutil"
 	"os"
 
-	"gitlab.com/morogasper/devtools/dvtlsio"
-	"gitlab.com/morogasper/devtools/dvtlslog"
+	"github.com/MoroGasper/devtools/dvtlsio"
+	"github.com/MoroGasper/devtools/dvtlslog"
 )
 
-type Jjson struct {
-	Log *dvtlslog.Jlog
+type DTSjson struct {
+	Log *dvtlslog.DTSlog
 }
 
-func (i *Jjson) CreateFileWithStruct(fileName, jsonestruct string) {
+func (i *DTSjson) CreateFileWithStruct(fileName, jsonestruct string) {
 	if jsonestruct == "" {
 		jsonestruct = `{"param1":"dat0","param2":"dat1"}`
 	}
@@ -26,7 +26,7 @@ para usar debes hacer esto
 
 GetJsonFromFile("miarchivo.json")
 */
-func (i *Jjson) GetJsonFromFile(fileConfigName string) map[string]interface{} {
+func (i *DTSjson) GetJsonFromFile(fileConfigName string) map[string]interface{} {
 
 	jsonFile, err := os.Open(fileConfigName)
 	if err != nil {
@@ -52,7 +52,7 @@ para usar debes hacer esto
 var WithStruct []FilesStruct
 GetJsonFileWithStruct("miarchivo.json", &WithStruct)
 */
-func (i *Jjson) GetJsonFileWithStruct(jsonFileName string, WithStruct interface{}) {
+func (i *DTSjson) GetJsonFileWithStruct(jsonFileName string, WithStruct interface{}) {
 	jsonFile, err := os.Open(jsonFileName)
 	i.Log.IsFatal(err)
 	defer jsonFile.Close()

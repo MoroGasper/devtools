@@ -1,3 +1,3 @@
-module gitlab.com/morogasper/devtools/dvtlsfile
+module github.com/MoroGasper/devtools/dvtlsfile
 
 go 1.19

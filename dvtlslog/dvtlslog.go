@@ -13,7 +13,7 @@ import (
 	"github.com/fatih/color"
 )
 
-type Jlog struct {
+type DTSlog struct {
 	IsDebug       bool
 	PrinterLogs   bool
 	PrinterScreen bool
@@ -25,16 +25,16 @@ type Jlog struct {
 	Trace         bool
 }
 
-func (i *Jlog) Silence() {
+func (i *DTSlog) Silence() {
 	i.IsDebug = false
 	i.PrinterLogs = false
 	i.PrinterScreen = false
 }
-func (i *Jlog) DebugOff() {
+func (i *DTSlog) DebugOff() {
 	i.IsDebug = false
 }
-func PrepareLog(IsDebug bool, PrinterLogs bool, PrinterScreen bool) *Jlog {
-	Log := &Jlog{
+func PrepareLog(IsDebug bool, PrinterLogs bool, PrinterScreen bool) *DTSlog {
+	Log := &DTSlog{
 		IsDebug:       IsDebug,
 		PrinterLogs:   PrinterLogs,
 		PrinterScreen: PrinterScreen,
@@ -48,7 +48,7 @@ func PrepareLog(IsDebug bool, PrinterLogs bool, PrinterScreen bool) *Jlog {
 	Log.SetInitProperty()
 	return Log
 }
-func PrepareDefaultLog() *Jlog {
+func PrepareDefaultLog() *DTSlog {
 	return PrepareLog(true, true, true)
 }
 
@@ -57,7 +57,7 @@ func splitLast(file string) string {
 	x := len(spliting)
 	return spliting[x-1]
 }
-func (i *Jlog) Write(typems string, format string, a ...interface{}) string {
+func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
 	var ok bool
 	ok = true
 	var file, infofile string
@@ -111,7 +111,7 @@ func (i *Jlog) Write(typems string, format string, a ...interface{}) string {
 	return typems + text
 
 }
-func (i *Jlog) Debug(format string, a ...interface{}) {
+func (i *DTSlog) Debug(format string, a ...interface{}) {
 	if i.IsDebug {
 		texto := i.Write("[DEBUG]:", format, a...)
 		color.White(texto)
@@ -120,16 +120,16 @@ func (i *Jlog) Debug(format string, a ...interface{}) {
 		}
 	}
 }
-func (i *Jlog) Fatal(format string, a ...interface{}) {
+func (i *DTSlog) Fatal(format string, a ...interface{}) {
 	i.Error(format, a)
 	os.Exit(1)
 }
-func (i *Jlog) IsFatal(err error) {
+func (i *DTSlog) IsFatal(err error) {
 	if err != nil {
 		i.Fatal(err.Error(), nil)
 	}
 }
-func (i *Jlog) IsErrorAndDie(err error, die bool) {
+func (i *DTSlog) IsErrorAndDie(err error, die bool) {
 	if die {
 		i.IsFatal(err)
 	}
@@ -138,7 +138,7 @@ func (i *Jlog) IsErrorAndDie(err error, die bool) {
 	}
 }
 
-func (i *Jlog) Error(format string, a ...interface{}) {
+func (i *DTSlog) Error(format string, a ...interface{}) {
 	texto := i.Write("[Error]:", format, a...)
 	if i.PrinterScreen == true {
 		color.Red(texto)
@@ -148,7 +148,7 @@ func (i *Jlog) Error(format string, a ...interface{}) {
 		i.LogInfo.Println(texto)
 	}
 }
-func (i *Jlog) Info(format string, a ...interface{}) {
+func (i *DTSlog) Info(format string, a ...interface{}) {
 	texto := i.Write("[Info]:", format, a...)
 	if i.PrinterScreen == true {
 		color.White(texto)
@@ -158,7 +158,7 @@ func (i *Jlog) Info(format string, a ...interface{}) {
 	}
 
 }
-func (i *Jlog) Warn(format string, a ...interface{}) {
+func (i *DTSlog) Warn(format string, a ...interface{}) {
 	texto := i.Write("[Warn]:", format, a...)
 	if i.PrinterScreen == true {
 		color.Yellow(texto)
@@ -168,7 +168,7 @@ func (i *Jlog) Warn(format string, a ...interface{}) {
 	}
 }
 
-func (i *Jlog) SetInitProperty() {
+func (i *DTSlog) SetInitProperty() {
 	if i.PrinterLogs == true {
 		if i.DirLogs == "" {
 			i.DirLogs = "logs"

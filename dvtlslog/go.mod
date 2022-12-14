@@ -1,4 +1,4 @@
-module gitlab.com/morogasper/devtools/dvtlslog
+module github.com/MoroGasper/devtools/dvtlslog
 
 go 1.19
 
