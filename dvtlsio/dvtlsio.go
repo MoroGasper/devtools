@@ -41,7 +41,7 @@ func CreateDirAll(directorio string) {
 	}
 }
 
-// Crea un archivo
+// INFO: Crea un archivo
 func CreateFile(rutaDestino string, data string) {
 	// err := ioutil.WriteFile(rutaDestino, []byte(data), 0644)
 	err := os.WriteFile(rutaDestino, []byte(data), 0644)

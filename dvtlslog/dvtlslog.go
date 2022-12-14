@@ -25,6 +25,12 @@ type DTSlog struct {
 	Trace         bool
 }
 
+func splitLast(file string) string {
+	spliting := strings.Split(file, "/")
+	x := len(spliting)
+	return spliting[x-1]
+}
+
 func (i *DTSlog) Silence() {
 	i.IsDebug = false
 	i.PrinterLogs = false
@@ -33,6 +39,7 @@ func (i *DTSlog) Silence() {
 func (i *DTSlog) DebugOff() {
 	i.IsDebug = false
 }
+
 func PrepareLog(IsDebug bool, PrinterLogs bool, PrinterScreen bool) *DTSlog {
 	Log := &DTSlog{
 		IsDebug:       IsDebug,
@@ -48,15 +55,11 @@ func PrepareLog(IsDebug bool, PrinterLogs bool, PrinterScreen bool) *DTSlog {
 	Log.SetInitProperty()
 	return Log
 }
+
 func PrepareDefaultLog() *DTSlog {
 	return PrepareLog(true, true, true)
 }
 
-func splitLast(file string) string {
-	spliting := strings.Split(file, "/")
-	x := len(spliting)
-	return spliting[x-1]
-}
 func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
 	var ok bool
 	ok = true
@@ -64,7 +67,7 @@ func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
 	var line, actualline int
 	var debuging, text string
 
-	for in := 0; ok == true; in++ {
+	for in := 0; ok; in++ {
 		_, file, actualline, ok = runtime.Caller(in)
 		if i.Trace {
 			proctemp := splitLast(file)
@@ -72,18 +75,18 @@ func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
 			if proctemp == "proc.go" {
 				break
 			}
-			if proctemp != "jlog.go" {
+			if proctemp != "dvtlslog.go" {
 				infofile = proctemp
 				debuging = debuging + " (" + proctemp + ":" + strconv.Itoa(actualline) + ")"
 			}
 
 			line = actualline
-			if i.IsDebug == true {
+			if i.IsDebug {
 				infofile = debuging
 			}
 		} else {
 			_, _, _, ok = runtime.Caller(in + 1)
-			if ok == false {
+			if !ok {
 				_, file, actualline, ok = runtime.Caller(in - 3)
 				proctemp := splitLast(file)
 				if proctemp == "proc.go" {
@@ -92,7 +95,7 @@ func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
 				infofile = proctemp
 				debuging = debuging + " (" + proctemp + ":" + strconv.Itoa(actualline) + ")"
 				line = actualline
-				if i.IsDebug == true {
+				if i.IsDebug {
 					infofile = debuging
 				}
 			}
@@ -101,7 +104,7 @@ func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
 
 	info := fmt.Sprintf(format, a...)
 
-	if i.IsDebug == true {
+	if i.IsDebug {
 		text = fmt.Sprintf("%s: %s", infofile, info)
 	} else {
 		text = fmt.Sprintf("%s:%d: %s", infofile, line, info)
@@ -115,20 +118,22 @@ func (i *DTSlog) Debug(format string, a ...interface{}) {
 	if i.IsDebug {
 		texto := i.Write("[DEBUG]:", format, a...)
 		color.White(texto)
-		if i.PrinterLogs == true {
+		if i.PrinterLogs {
 			i.LogInfo.Println(texto)
 		}
 	}
 }
 func (i *DTSlog) Fatal(format string, a ...interface{}) {
-	i.Error(format, a)
+	i.Error(format, a...)
 	os.Exit(1)
 }
+
 func (i *DTSlog) IsFatal(err error) {
 	if err != nil {
 		i.Fatal(err.Error(), nil)
 	}
 }
+
 func (i *DTSlog) IsErrorAndDie(err error, die bool) {
 	if die {
 		i.IsFatal(err)
@@ -140,36 +145,38 @@ func (i *DTSlog) IsErrorAndDie(err error, die bool) {
 
 func (i *DTSlog) Error(format string, a ...interface{}) {
 	texto := i.Write("[Error]:", format, a...)
-	if i.PrinterScreen == true {
+	if i.PrinterScreen {
 		color.Red(texto)
 	}
-	if i.PrinterLogs == true {
+	if i.PrinterLogs {
 		i.LogError.Println(texto)
 		i.LogInfo.Println(texto)
 	}
 }
+
 func (i *DTSlog) Info(format string, a ...interface{}) {
 	texto := i.Write("[Info]:", format, a...)
-	if i.PrinterScreen == true {
+	if i.PrinterScreen {
 		color.White(texto)
 	}
-	if i.PrinterLogs == true {
+	if i.PrinterLogs {
 		i.LogInfo.Println(texto)
 	}
 
 }
+
 func (i *DTSlog) Warn(format string, a ...interface{}) {
 	texto := i.Write("[Warn]:", format, a...)
-	if i.PrinterScreen == true {
+	if i.PrinterScreen {
 		color.Yellow(texto)
 	}
-	if i.PrinterLogs == true {
+	if i.PrinterLogs {
 		i.LogInfo.Println(texto)
 	}
 }
 
 func (i *DTSlog) SetInitProperty() {
-	if i.PrinterLogs == true {
+	if i.PrinterLogs {
 		if i.DirLogs == "" {
 			i.DirLogs = "logs"
 		}
@@ -189,7 +196,6 @@ func (i *DTSlog) SetInitProperty() {
 		if err1 != nil {
 			log.Fatalln("open log file 'error' failed ", err)
 		}
-		//日志
 		i.LogInfo = log.New(io.MultiWriter(logFile), "", log.Ldate|log.Ltime)       //LogInfo.Println(1, 2, 3)
 		i.LogError = log.New(io.MultiWriter(logFileError), "", log.Ldate|log.Ltime) //LogError.Println(4, 5, 6)
 	}
