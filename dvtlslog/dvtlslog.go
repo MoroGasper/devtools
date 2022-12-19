@@ -31,13 +31,13 @@ func splitLast(file string) string {
 	return spliting[x-1]
 }
 
-func (i *DTSlog) Silence() {
-	i.IsDebug = false
-	i.PrinterLogs = false
-	i.PrinterScreen = false
+func (s *DTSlog) Silence() {
+	s.IsDebug = false
+	s.PrinterLogs = false
+	s.PrinterScreen = false
 }
-func (i *DTSlog) DebugOff() {
-	i.IsDebug = false
+func (s *DTSlog) DebugOff() {
+	s.IsDebug = false
 }
 
 func PrepareLog(IsDebug bool, PrinterLogs bool, PrinterScreen bool) *DTSlog {
@@ -60,7 +60,7 @@ func PrepareDefaultLog() *DTSlog {
 	return PrepareLog(true, true, true)
 }
 
-func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
+func (s *DTSlog) Write(typems string, format string, a ...interface{}) string {
 	var ok bool
 	ok = true
 	var file, infofile string
@@ -69,7 +69,7 @@ func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
 
 	for in := 0; ok; in++ {
 		_, file, actualline, ok = runtime.Caller(in)
-		if i.Trace {
+		if s.Trace {
 			proctemp := splitLast(file)
 
 			if proctemp == "proc.go" {
@@ -81,7 +81,7 @@ func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
 			}
 
 			line = actualline
-			if i.IsDebug {
+			if s.IsDebug {
 				infofile = debuging
 			}
 		} else {
@@ -95,7 +95,7 @@ func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
 				infofile = proctemp
 				debuging = debuging + " (" + proctemp + ":" + strconv.Itoa(actualline) + ")"
 				line = actualline
-				if i.IsDebug {
+				if s.IsDebug {
 					infofile = debuging
 				}
 			}
@@ -104,7 +104,7 @@ func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
 
 	info := fmt.Sprintf(format, a...)
 
-	if i.IsDebug {
+	if s.IsDebug {
 		text = fmt.Sprintf("%s: %s", infofile, info)
 	} else {
 		text = fmt.Sprintf("%s:%d: %s", infofile, line, info)
@@ -114,89 +114,96 @@ func (i *DTSlog) Write(typems string, format string, a ...interface{}) string {
 	return typems + text
 
 }
-func (i *DTSlog) Debug(format string, a ...interface{}) {
-	if i.IsDebug {
-		texto := i.Write("[DEBUG]:", format, a...)
+func (s *DTSlog) Debug(format string, a ...interface{}) {
+	if s.IsDebug {
+		texto := s.Write("[DEBUG]:", format, a...)
 		color.White(texto)
-		if i.PrinterLogs {
-			i.LogInfo.Println(texto)
+		if s.PrinterLogs {
+			s.LogInfo.Println(texto)
 		}
 	}
 }
-func (i *DTSlog) Fatal(format string, a ...interface{}) {
-	i.Error(format, a...)
+func (s *DTSlog) Fatal(format string, a ...interface{}) {
+	s.Error(format, a...)
 	os.Exit(1)
 }
 
-func (i *DTSlog) IsFatal(err error) {
+func (s *DTSlog) IsFatal(err error) {
 	if err != nil {
-		i.Fatal(err.Error(), nil)
+		s.Fatal(err.Error(), nil)
 	}
 }
 
-func (i *DTSlog) IsErrorAndDie(err error, die bool) {
+func (s *DTSlog) IsErrorAndDie(err error, die bool) {
 	if die {
-		i.IsFatal(err)
+		s.IsFatal(err)
 	}
 	if err != nil {
-		i.Error(err.Error())
+		s.Error(err.Error())
 	}
 }
 
-func (i *DTSlog) Error(format string, a ...interface{}) {
-	texto := i.Write("[Error]:", format, a...)
-	if i.PrinterScreen {
+func (s *DTSlog) IsErrorAndMessage(err error, message string) {
+	msg := fmt.Sprintf(message+" %s", err.Error())
+	if err != nil {
+		s.Error(msg)
+	}
+}
+
+func (s *DTSlog) Error(format string, a ...interface{}) {
+	texto := s.Write("[Error]:", format, a...)
+	if s.PrinterScreen {
 		color.Red(texto)
 	}
-	if i.PrinterLogs {
-		i.LogError.Println(texto)
-		i.LogInfo.Println(texto)
+	if s.PrinterLogs {
+		s.LogError.Println(texto)
+		s.LogInfo.Println(texto)
 	}
 }
 
-func (i *DTSlog) Info(format string, a ...interface{}) {
-	texto := i.Write("[Info]:", format, a...)
-	if i.PrinterScreen {
-		color.White(texto)
+func (s *DTSlog) Info(format string, a ...interface{}) {
+	texto := s.Write("[Info]:", format, a...)
+	if s.PrinterScreen {
+		// color.White(texto)
+		color.Cyan(texto)
 	}
-	if i.PrinterLogs {
-		i.LogInfo.Println(texto)
+	if s.PrinterLogs {
+		s.LogInfo.Println(texto)
 	}
-
 }
 
-func (i *DTSlog) Warn(format string, a ...interface{}) {
-	texto := i.Write("[Warn]:", format, a...)
-	if i.PrinterScreen {
+func (s *DTSlog) Warn(format string, a ...interface{}) {
+	texto := s.Write("[Warn]:", format, a...)
+	if s.PrinterScreen {
 		color.Yellow(texto)
 	}
-	if i.PrinterLogs {
-		i.LogInfo.Println(texto)
+	if s.PrinterLogs {
+		s.LogInfo.Println(texto)
 	}
 }
 
-func (i *DTSlog) SetInitProperty() {
-	if i.PrinterLogs {
-		if i.DirLogs == "" {
-			i.DirLogs = "logs"
+func (s *DTSlog) SetInitProperty() {
+	if s.PrinterLogs {
+		if s.DirLogs == "" {
+			s.DirLogs = "logs"
 		}
-		if i.DirErroLogs == "" {
-			i.DirErroLogs = "logs/error"
+		if s.DirErroLogs == "" {
+			s.DirErroLogs = "logs/error"
 		}
-		if i.LogFileName == "" {
-			i.LogFileName = "run"
+		if s.LogFileName == "" {
+			s.LogFileName = "run"
 		}
-		os.Mkdir(i.DirLogs, 0755)
-		os.Mkdir(i.DirErroLogs, 0755)
-		logFile, err := os.OpenFile("./"+i.DirLogs+"/"+i.LogFileName+"_"+time.Now().Format("2006-01-02")+".log", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755)
+		os.Mkdir(s.DirLogs, 0755)
+		os.Mkdir(s.DirErroLogs, 0755)
+		logFile, err := os.OpenFile("./"+s.DirLogs+"/"+s.LogFileName+"_"+time.Now().Format("2006-01-02")+".log", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755)
 		if err != nil {
 			log.Fatalln("open log file failed", err)
 		}
-		logFileError, err1 := os.OpenFile("./"+i.DirErroLogs+"/"+i.LogFileName+"_"+time.Now().Format("2006-01-02")+".log", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755)
+		logFileError, err1 := os.OpenFile("./"+s.DirErroLogs+"/"+s.LogFileName+"_"+time.Now().Format("2006-01-02")+".log", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755)
 		if err1 != nil {
 			log.Fatalln("open log file 'error' failed ", err)
 		}
-		i.LogInfo = log.New(io.MultiWriter(logFile), "", log.Ldate|log.Ltime)       //LogInfo.Println(1, 2, 3)
-		i.LogError = log.New(io.MultiWriter(logFileError), "", log.Ldate|log.Ltime) //LogError.Println(4, 5, 6)
+		s.LogInfo = log.New(io.MultiWriter(logFile), "", log.Ldate|log.Ltime)       //LogInfo.Println(1, 2, 3)
+		s.LogError = log.New(io.MultiWriter(logFileError), "", log.Ldate|log.Ltime) //LogError.Println(4, 5, 6)
 	}
 }
