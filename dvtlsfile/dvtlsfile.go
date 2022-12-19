@@ -13,11 +13,11 @@ type DTSjson struct {
 	Log *dvtlslog.DTSlog
 }
 
-func (i *DTSjson) CreateFileWithStruct(fileName, jsonestruct string) {
-	if jsonestruct == "" {
-		jsonestruct = `{"param1":"dat0","param2":"dat1"}`
+func (i *DTSjson) CreateFileWithStruct(fileName, jsonStruct string) {
+	if jsonStruct == "" {
+		jsonStruct = `{"param1":"dat0","param2":"dat1"}`
 	}
-	dvtlsio.CreateFile(fileName, jsonestruct)
+	dvtlsio.CreateFile(fileName, jsonStruct)
 }
 
 /*
@@ -56,7 +56,8 @@ func (i *DTSjson) GetJsonFileWithStruct(jsonFileName string, WithStruct interfac
 	jsonFile, err := os.Open(jsonFileName)
 	i.Log.IsFatal(err)
 	defer jsonFile.Close()
-	byteValue, err1 := ioutil.ReadAll(jsonFile)
-	i.Log.IsFatal(err1)
+	byteValue, err := ioutil.ReadAll(jsonFile)
+	// byteValue, err := os.R
+	i.Log.IsFatal(err)
 	i.Log.IsFatal(json.Unmarshal([]byte(byteValue), WithStruct))
 }
