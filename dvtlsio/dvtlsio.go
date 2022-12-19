@@ -4,7 +4,13 @@ import (
 	"io"
 	"os"
 	"strings"
+
+	"github.com/MoroGasper/devtools/dvtlslog"
 )
+
+type DTSio struct {
+	Log *dvtlslog.DTSlog
+}
 
 // INFO: Valida el error
 func checkError(err error) {

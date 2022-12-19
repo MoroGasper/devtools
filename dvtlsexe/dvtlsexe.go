@@ -19,139 +19,138 @@ type DTSexe struct {
 	PrinterScreen bool
 	ShowStd       bool
 	ShowErr       bool
-	/**/
-	FinalPath string
-	Die       bool
+	FinalPath     string
+	Die           bool
 }
 
 // Desactiva el debug
-func (i *DTSexe) LogDebugOff() {
-	i.IsDebug = false
-	if i.Log != nil {
-		i.Log.DebugOff()
-		i.Log.Debug("Debug off")
+func (s *DTSexe) LogDebugOff() {
+	s.IsDebug = false
+	if s.Log != nil {
+		s.Log.DebugOff()
+		s.Log.Debug("Debug off")
 	}
 }
-func (i *DTSexe) LogSilence() {
-	if i.Log != nil {
-		i.Log.Silence()
+func (s *DTSexe) LogSilence() {
+	if s.Log != nil {
+		s.Log.Silence()
 	}
 }
 
 // Configuración por defecto del log
-func (i *DTSexe) PrepareDefaultLog() {
-	i.PrepareLog(true, true, true)
+func (s *DTSexe) PrepareDefaultLog() {
+	s.PrepareLog(true, true, true)
 }
 
-func (i *DTSexe) PrepareLog(IsDebug bool, PrinterLogs bool, PrinterScreen bool) {
-	i.IsDebug = IsDebug
-	i.PrinterLogs = PrinterLogs
-	i.PrinterScreen = PrinterScreen
-	i.Log = dvtlslog.PrepareLog(i.IsDebug, i.PrinterLogs, i.PrinterScreen)
+func (s *DTSexe) PrepareLog(IsDebug bool, PrinterLogs bool, PrinterScreen bool) {
+	s.IsDebug = IsDebug
+	s.PrinterLogs = PrinterLogs
+	s.PrinterScreen = PrinterScreen
+	s.Log = dvtlslog.PrepareLog(s.IsDebug, s.PrinterLogs, s.PrinterScreen)
 }
 
-func (i *DTSexe) PrepareDefaultjExe(Executable string) {
-	i.Executable = Executable
-	i.ShowStd = true
-	i.ShowErr = true
-	i.PrepareDefaultLog()
-
-}
-
-func (i *DTSexe) PrepareDefaultWithLogSilence(Executable string) {
-	i.Executable = Executable
-	i.ShowStd = false
-	i.ShowErr = false
-	i.PrepareLog(false, false, false)
+func (s *DTSexe) PrepareDefaultjExe(Executable string) {
+	s.Executable = Executable
+	s.ShowStd = true
+	s.ShowErr = true
+	s.PrepareDefaultLog()
 
 }
 
-func (i *DTSexe) PreparejExe(Executable string, ShowStd bool, ShowErr bool, IsDebug bool, PrinterLogs bool, PrinterScreen bool) {
-	i.Executable = Executable
-	i.ShowStd = ShowStd
-	i.ShowErr = ShowErr
-	i.PrepareLog(IsDebug, PrinterLogs, PrinterScreen)
+func (s *DTSexe) PrepareDefaultWithLogSilence(Executable string) {
+	s.Executable = Executable
+	s.ShowStd = false
+	s.ShowErr = false
+	s.PrepareLog(false, false, false)
+
 }
 
-func (i *DTSexe) CommandAndRun(withArgument bool, die bool) {
-	i.Command(i.Executable, withArgument)
-	i.Run(die)
+func (s *DTSexe) PreparejExe(Executable string, ShowStd bool, ShowErr bool, IsDebug bool, PrinterLogs bool, PrinterScreen bool) {
+	s.Executable = Executable
+	s.ShowStd = ShowStd
+	s.ShowErr = ShowErr
+	s.PrepareLog(IsDebug, PrinterLogs, PrinterScreen)
 }
 
-func (i *DTSexe) CommandInternal(withArgument bool) {
-	i.Command(i.Executable, withArgument)
+func (s *DTSexe) CommandAndRun(withArgument bool, die bool) {
+	s.Command(s.Executable, withArgument)
+	s.Run(die)
 }
 
-func (i *DTSexe) Command(exectuble string, withArgument bool) {
+func (s *DTSexe) CommandInternal(withArgument bool) {
+	s.Command(s.Executable, withArgument)
+}
+
+func (s *DTSexe) Command(exectuble string, withArgument bool) {
 	if withArgument {
-		i.Cmd = exec.Command(exectuble, i.Arg...)
+		s.Cmd = exec.Command(exectuble, s.Arg...)
 	} else {
-		i.Cmd = exec.Command(exectuble)
+		s.Cmd = exec.Command(exectuble)
 	}
-	if i.FinalPath != "" {
-		absPath, _ := filepath.Abs(i.FinalPath)
-		i.Cmd.Dir = absPath
+	if s.FinalPath != "" {
+		absPath, _ := filepath.Abs(s.FinalPath)
+		s.Cmd.Dir = absPath
 	}
-	i.Log.Debug("Commando:\n%s\n", i.Cmd)
+	s.Log.Debug("Commando:\n%s\n", s.Cmd)
 }
 
-func (i *DTSexe) ExecuteWithArg(arg ...string) {
-	i.Arg = arg
-	i.CommandInternal(true)
-	i.Run(i.Die)
+func (s *DTSexe) ExecuteWithArg(arg ...string) {
+	s.Arg = arg
+	s.CommandInternal(true)
+	s.Run(s.Die)
 }
 
-func (i *DTSexe) ExecuteWithArgAndData(data string, arg ...string) {
-	i.Arg = arg
-	i.CommandInternal(true)
-	i.RunWithData(data, i.Die)
+func (s *DTSexe) ExecuteWithArgAndData(data string, arg ...string) {
+	s.Arg = arg
+	s.CommandInternal(true)
+	s.RunWithData(data, s.Die)
 }
 
-func (i *DTSexe) Run(die bool) (string, string, error) {
+func (s *DTSexe) Run(die bool) (string, string, error) {
 	var stdout, stderr bytes.Buffer
-	i.Cmd.Stdout = &stdout
-	i.Cmd.Stderr = &stderr
-	err := i.Cmd.Run()
+	s.Cmd.Stdout = &stdout
+	s.Cmd.Stderr = &stderr
+	err := s.Cmd.Run()
 	// outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
 	outStr, errStr := stdout.String(), stderr.String()
-	if i.ShowStd {
+	if s.ShowStd {
 		if outStr != "" {
-			i.Log.Debug("exe output: \n%s\n", outStr)
+			s.Log.Debug("exe output: \n%s\n", outStr)
 		}
 	}
 	if errStr != "" {
-		i.Log.IsErrorAndDie(errors.New(errStr), die)
+		s.Log.IsErrorAndDie(errors.New(errStr), die)
 	}
 	if err != nil {
-		i.Log.IsErrorAndDie(err, die)
+		s.Log.IsErrorAndDie(err, die)
 	}
 	return outStr, errStr, err
 }
 
-func (i *DTSexe) GenerateAbsolutePath(FileName string) string {
+func (s *DTSexe) GenerateAbsolutePath(FileName string) string {
 	absPath, _ := filepath.Abs("./")
 	return absPath + FileName
 }
 
-func (i *DTSexe) AddParameterWithAbsolutePath(Paramterindex string, FileName string) []string {
-	FileName = i.GenerateAbsolutePath(FileName)
-	i.AddParameter(Paramterindex, FileName)
-	return i.Arg
+func (s *DTSexe) AddParameterWithAbsolutePath(Paramterindex string, FileName string) []string {
+	FileName = s.GenerateAbsolutePath(FileName)
+	s.AddParameter(Paramterindex, FileName)
+	return s.Arg
 }
 
-func (i *DTSexe) AddParameter(Index string, Value string) []string {
-	i.Arg = append([]string{Index, Value}, i.Arg...)
-	return i.Arg
+func (s *DTSexe) AddParameter(Index string, Value string) []string {
+	s.Arg = append([]string{Index, Value}, s.Arg...)
+	return s.Arg
 }
 
-func (i *DTSexe) Addflag(flag string) []string {
-	i.Arg = append([]string{flag}, i.Arg...)
-	return i.Arg
+func (s *DTSexe) Addflag(flag string) []string {
+	s.Arg = append([]string{flag}, s.Arg...)
+	return s.Arg
 }
 
-func (i *DTSexe) RunWithData(data string, die bool) (string, string, error) {
+func (s *DTSexe) RunWithData(data string, die bool) (string, string, error) {
 	buffer := bytes.Buffer{}
 	buffer.Write([]byte(data))
-	i.Cmd.Stdin = &buffer
-	return i.Run(die)
+	s.Cmd.Stdin = &buffer
+	return s.Run(die)
 }
