@@ -18,6 +18,6 @@ type Files interface {
 	ReadSecureFile(key string, dirSecure string) ([]byte, error)
 }
 
-type DTSjson struct {
+type DTSfile struct {
 	Log *dvtlslog.DTSlog
 }

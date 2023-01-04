@@ -8,7 +8,7 @@ import (
 	"github.com/MoroGasper/devtools/dvtlsio"
 )
 
-func (s *DTSjson) CreateFileWithStruct(fileName, jsonStruct string) {
+func (s *DTSfile) CreateFileWithStruct(fileName, jsonStruct string) {
 	if jsonStruct == "" {
 		jsonStruct = `{"param1":"dat0","param2":"dat1"}`
 	}
@@ -26,7 +26,7 @@ para usar debes hacer esto
 var WithStruct []FilesStruct
 GetJsonFileWithStruct("miarchivo.json", &WithStruct)
 */
-func (s *DTSjson) GetJsonFileWithStruct(jsonFileName string, WithStruct interface{}) {
+func (s *DTSfile) GetJsonFileWithStruct(jsonFileName string, WithStruct interface{}) {
 	jsonFile, err := os.Open(jsonFileName)
 	s.Log.IsFatal(err)
 	defer jsonFile.Close()
@@ -41,7 +41,7 @@ para usar debes hacer esto
 
 GetJsonFromFile("miarchivo.json")
 */
-func (s *DTSjson) GetJsonFromFile(fileConfigName string) map[string]interface{} {
+func (s *DTSfile) GetJsonFromFile(fileConfigName string) map[string]interface{} {
 
 	jsonFile, err := os.Open(fileConfigName)
 	if err != nil {
